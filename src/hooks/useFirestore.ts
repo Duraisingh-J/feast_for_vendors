@@ -8,14 +8,13 @@ export const useFirestoreCollection = (collectionName: string) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Initialize with demo data immediately to prevent loading state
-    const initializeDemoData = () => {
-      const demoData = getDemoData(collectionName);
-      setData(demoData);
+    if (!db) {
+      console.warn('Firestore not initialized');
+      setData(getDemoData(collectionName));
       setLoading(false);
-    };
+      return;
+    }
 
-    // Try to connect to Firestore, but fallback to demo data
     try {
       const q = query(collection(db, collectionName));
       
@@ -25,32 +24,41 @@ export const useFirestoreCollection = (collectionName: string) => {
             id: doc.id,
             ...doc.data()
           }));
-          // If no docs exist, use demo data
           setData(docs.length > 0 ? docs : getDemoData(collectionName));
           setLoading(false);
         },
         (err) => {
-          console.warn(`Firestore error for ${collectionName}:`, err.message);
-          // Fallback to demo data on error
-          initializeDemoData();
+          console.error(`Firestore error for ${collectionName}:`, err);
+          setError(err.message);
+          setData(getDemoData(collectionName));
+          setLoading(false);
         }
       );
 
       return () => unsubscribe();
-    } catch (err) {
-      console.warn(`Failed to initialize Firestore for ${collectionName}:`, err);
-      initializeDemoData();
+    } catch (err: any) {
+      console.error(`Failed to initialize Firestore for ${collectionName}:`, err);
+      setError(err.message);
+      setData(getDemoData(collectionName));
+      setLoading(false);
     }
   }, [collectionName]);
 
   const addDocument = async (data: any) => {
+    if (!db) {
+      console.warn('Firestore not available, using local state');
+      const newDoc = { id: Date.now().toString(), ...data, createdAt: new Date() };
+      setData(prev => [...prev, newDoc]);
+      return;
+    }
+
     try {
       await addDoc(collection(db, collectionName), {
         ...data,
         createdAt: new Date()
       });
     } catch (err: any) {
-      console.warn('Failed to add document:', err.message);
+      console.error('Failed to add document:', err);
       // Add to local state as fallback
       const newDoc = { id: Date.now().toString(), ...data, createdAt: new Date() };
       setData(prev => [...prev, newDoc]);
@@ -58,13 +66,21 @@ export const useFirestoreCollection = (collectionName: string) => {
   };
 
   const updateDocument = async (id: string, data: any) => {
+    if (!db) {
+      console.warn('Firestore not available, using local state');
+      setData(prev => prev.map(item => 
+        item.id === id ? { ...item, ...data, updatedAt: new Date() } : item
+      ));
+      return;
+    }
+
     try {
       await updateDoc(doc(db, collectionName, id), {
         ...data,
         updatedAt: new Date()
       });
     } catch (err: any) {
-      console.warn('Failed to update document:', err.message);
+      console.error('Failed to update document:', err);
       // Update local state as fallback
       setData(prev => prev.map(item => 
         item.id === id ? { ...item, ...data, updatedAt: new Date() } : item

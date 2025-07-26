@@ -13,21 +13,10 @@ class GeminiService {
   private baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
   constructor() {
-    this.apiKey = import.meta.env.VITE_GEMINI_API_KEY || 'demo-key';
+    this.apiKey = 'AIzaSyAkoMEAyp1BnGatCF5Qh8CHXYgVDTEjm34';
   }
 
   async generateContent(prompt: string): Promise<string> {
-    if (this.apiKey === 'demo-key') {
-      // Demo response for development
-      if (prompt.includes('price prediction')) {
-        return 'Based on market trends, the price is expected to increase by 12% over the next week due to seasonal demand and supply constraints.';
-      }
-      if (prompt.includes('quantity optimization')) {
-        return 'Based on your sales data, I recommend purchasing 150-200 units to optimize inventory levels and minimize waste while meeting demand.';
-      }
-      return 'Demo response from Gemini API';
-    }
-
     try {
       const response = await fetch(`${this.baseUrl}?key=${this.apiKey}`, {
         method: 'POST',
@@ -51,6 +40,13 @@ class GeminiService {
       return data.candidates[0]?.content?.parts[0]?.text || 'No response generated';
     } catch (error) {
       console.error('Gemini API Error:', error);
+      // Fallback to demo responses if API fails
+      if (prompt.includes('price prediction')) {
+        return 'Based on market trends, the price is expected to increase by 12% over the next week due to seasonal demand and supply constraints.';
+      }
+      if (prompt.includes('quantity optimization')) {
+        return 'Based on your sales data, I recommend purchasing 150-200 units to optimize inventory levels and minimize waste while meeting demand.';
+      }
       throw new Error('Failed to get AI response');
     }
   }

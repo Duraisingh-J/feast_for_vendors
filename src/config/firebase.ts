@@ -1,30 +1,26 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { getAuth } from 'firebase/auth';
+import { getAnalytics } from 'firebase/analytics';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "demo-api-key",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "demo-project.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "demo-project",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "demo-project.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123456789:web:demo-app-id"
+  apiKey: "AIzaSyBKZ46O1ugsbVG4j2WYTdJKzgkp70tP_Js",
+  authDomain: "feast-4685d.firebaseapp.com",
+  projectId: "feast-4685d",
+  storageBucket: "feast-4685d.firebasestorage.app",
+  messagingSenderId: "565472067736",
+  appId: "1:565472067736:web:d9e71c70a480eb08b790ed",
+  measurementId: "G-R51SKGH5NP"
 };
 
-let app;
-let db;
-let storage;
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
-try {
-  app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  storage = getStorage(app);
-} catch (error) {
-  console.warn('Firebase initialization failed, running in demo mode:', error);
-  // Create mock objects for demo mode
-  db = null;
-  storage = null;
-}
+// Initialize services
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+export const auth = getAuth(app);
+export const analytics = getAnalytics(app);
 
-export { db, storage };
 export default app;

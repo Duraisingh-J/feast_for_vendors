@@ -1,9 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Utensils, User, Home } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import LanguageSelector from './LanguageSelector';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
+  const { t } = useLanguage();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -14,10 +17,10 @@ const Navbar: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Utensils className="h-8 w-8 text-emerald-600" />
             <span className="text-2xl font-bold text-gray-900">FEAST</span>
-            <span className="text-sm text-gray-500 hidden sm:block">Food Essentials Access & Supply Tracking</span>
+            <span className="text-sm text-gray-500 hidden sm:block">{t('nav.tagline')}</span>
           </div>
           
-          <div className="flex space-x-4">
+          <div className="flex items-center space-x-4">
             <Link
               to="/"
               className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -27,7 +30,7 @@ const Navbar: React.FC = () => {
               }`}
             >
               <Home className="h-4 w-4" />
-              <span>Dashboard</span>
+              <span>{t('nav.dashboard')}</span>
             </Link>
             <Link
               to="/profile"
@@ -38,8 +41,10 @@ const Navbar: React.FC = () => {
               }`}
             >
               <User className="h-4 w-4" />
-              <span>Profile</span>
+              <span>{t('nav.profile')}</span>
             </Link>
+            
+            <LanguageSelector />
           </div>
         </div>
       </div>
